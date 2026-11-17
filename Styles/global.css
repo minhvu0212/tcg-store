@@ -1,0 +1,81 @@
+/* Global holographic foil shine and premium collectible animations */
+@keyframes holoShine {
+  0% {
+    background-position: 0% 0%;
+    opacity: 0.15;
+  }
+  50% {
+    background-position: 100% 100%;
+    opacity: 0.35;
+  }
+  100% {
+    background-position: 0% 0%;
+    opacity: 0.15;
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(217, 180, 91, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(217, 180, 91, 0.45);
+  }
+}
+
+.holo-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
+}
+
+.holo-card::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    115deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.05) 30%,
+    rgba(217, 180, 91, 0.18) 42%,
+    rgba(137, 87, 229, 0.18) 55%,
+    rgba(67, 141, 255, 0.18) 68%,
+    transparent 80%
+  );
+  opacity: 0;
+  transform: rotate(25deg);
+  pointer-events: none;
+  transition: opacity 0.4s ease, transform 0.6s ease;
+}
+
+.holo-card:hover::after {
+  opacity: 1;
+  transform: rotate(25deg) translateY(-25%);
+}
+
+.badge-gold {
+  background: linear-gradient(135deg, rgba(217, 180, 91, 0.2) 0%, rgba(179, 145, 62, 0.2) 100%);
+  border: 1px solid rgba(217, 180, 91, 0.5);
+  color: #F5DE93;
+}
+
+.badge-purple {
+  background: linear-gradient(135deg, rgba(137, 87, 229, 0.2) 0%, rgba(105, 55, 196, 0.2) 100%);
+  border: 1px solid rgba(137, 87, 229, 0.5);
+  color: #CBB2FE;
+}
+
+.badge-blue {
+  background: linear-gradient(135deg, rgba(67, 141, 255, 0.2) 0%, rgba(36, 111, 223, 0.2) 100%);
+  border: 1px solid rgba(67, 141, 255, 0.5);
+  color: #9EC5FE;
+}
+
+.badge-emerald {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.2) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.5);
+  color: #6EE7B7;
+}
