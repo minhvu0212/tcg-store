@@ -1,96 +1,96 @@
 export const adminOverview = {
-  totalRevenue: 124850.00,
-  revenueGrowth: '+18.4% from last month',
+  totalRevenue: 3125800000,
+  revenueGrowth: '+18.4% so với tháng trước',
   totalOrders: 1420,
-  ordersGrowth: '+12.1% from last month',
-  totalProducts: 48,
+  ordersGrowth: '+12.1% so với tháng trước',
+  totalProducts: 135,
   activeCustomers: 890,
   lowStockCount: 4,
   chartData: [
-    { month: 'Oct', revenue: 14200, orders: 180 },
-    { month: 'Nov', revenue: 18400, orders: 210 },
-    { month: 'Dec', revenue: 29800, orders: 340 },
-    { month: 'Jan', revenue: 21500, orders: 245 },
-    { month: 'Feb', revenue: 19800, orders: 220 },
-    { month: 'Mar', revenue: 21150, orders: 225 }
+    { month: 'T10', revenue: 380000000, orders: 180 },
+    { month: 'T11', revenue: 460000000, orders: 210 },
+    { month: 'T12', revenue: 740000000, orders: 340 },
+    { month: 'T01', revenue: 535000000, orders: 245 },
+    { month: 'T02', revenue: 495000000, orders: 220 },
+    { month: 'T03', revenue: 515800000, orders: 225 }
   ]
 };
 
 export const adminOrders = [
   {
     id: 'ORD-7821',
-    customer: 'David Miller',
-    email: 'david.m@tcgcollector.io',
+    customer: 'Trần Văn Hải',
+    email: 'hai.tran@tcgcollector.vn',
     date: '2026-03-16',
     itemsCount: 2,
-    total: 984.00,
+    total: 28150000,
     status: 'Delivered',
-    paymentMethod: 'Credit Card (Demo)',
-    shippingAddress: '742 Evergreen Terrace, Springfield, OR',
+    paymentMethod: 'Chuyển khoản Ngân hàng (Mô phỏng)',
+    shippingAddress: '42 Nguyễn Huệ, Quận 1, TP. Hồ Chí Minh',
     items: [
-      { name: 'Umbreon VMAX Alternate Art', price: 799.00, quantity: 1 },
-      { name: 'Charizard ex 151 SIR', price: 185.00, quantity: 1 }
+      { name: 'Umbreon VMAX Alternate Art (Moonbreon)', price: 24500000, quantity: 1 },
+      { name: 'Charizard ex 151 Special Illustration Rare', price: 3650000, quantity: 1 }
     ]
   },
   {
     id: 'ORD-7820',
-    customer: 'Sarah Jenkins',
-    email: 'sarah.j@gamermail.com',
+    customer: 'Nguyễn Thị Bích Ngọc',
+    email: 'bichngoc.tcg@gmail.com',
     date: '2026-03-15',
-    itemsCount: 3,
-    total: 398.97,
+    itemsCount: 4,
+    total: 9235000,
     status: 'Shipped',
-    paymentMethod: 'PayPal (Demo)',
-    shippingAddress: '104 Main Street, Austin, TX',
+    paymentMethod: 'Ví MoMo (Mô phỏng)',
+    shippingAddress: '104 Cầu Giấy, Hà Nội',
     items: [
-      { name: 'Blue-Eyes White Dragon LOB-001', price: 349.99, quantity: 1 },
-      { name: 'Dragon Shield Sleeves Matte', price: 13.99, quantity: 2 },
-      { name: 'Ultra PRO Magnetic One-Touch', price: 18.99, quantity: 1 }
+      { name: 'Blue-Eyes White Dragon LOB-001 Ultra Rare', price: 8500000, quantity: 1 },
+      { name: 'Dragon Shield Sleeves Matte Japanese Size', price: 320000, quantity: 2 },
+      { name: 'Ultra PRO Magnetic One-Touch 35pt Case', price: 95000, quantity: 1 }
     ]
   },
   {
     id: 'ORD-7819',
-    customer: 'Michael Chang',
-    email: 'm.chang@duelist.org',
+    customer: 'Lê Minh Quân',
+    email: 'quan.le@duelist.org',
     date: '2026-03-15',
     itemsCount: 1,
-    total: 2450.00,
+    total: 52000000,
     status: 'Processing',
-    paymentMethod: 'Crypto / Bank (Demo)',
-    shippingAddress: '55 Ocean Avenue, San Francisco, CA',
+    paymentMethod: 'Chuyển khoản Vietcombank (Mô phỏng)',
+    shippingAddress: '88 Lê Lợi, Hải Châu, Đà Nẵng',
     items: [
-      { name: 'Monkey D. Luffy Gear 5 Manga Secret Rare', price: 2450.00, quantity: 1 }
+      { name: 'Monkey D. Luffy Gear 5 Manga Alternate Art', price: 52000000, quantity: 1 }
     ]
   },
   {
     id: 'ORD-7818',
-    customer: 'Liam Henderson',
-    email: 'liam.h@collection.com',
+    customer: 'Phạm Tuấn Kiệt',
+    email: 'kiet.pham@collection.com',
     date: '2026-03-14',
-    itemsCount: 4,
-    total: 136.96,
+    itemsCount: 5,
+    total: 2540000,
     status: 'Delivered',
-    paymentMethod: 'Apple Pay (Demo)',
-    shippingAddress: '88 Baker St, London, UK',
+    paymentMethod: 'Thẻ Quốc tế Visa/Master (Mô phỏng)',
+    shippingAddress: '15 Trần Phú, Nha Trang, Khánh Hòa',
     items: [
-      { name: 'Ash Blossom & Joyous Spring', price: 32.50, quantity: 2 },
-      { name: 'Vault X Zip Binder', price: 34.99, quantity: 1 },
-      { name: 'Ultra PRO 35pt Magnetic Case', price: 18.99, quantity: 2 }
+      { name: 'Ash Blossom & Joyous Spring Ultra Rare', price: 750000, quantity: 2 },
+      { name: 'Vault X Exo-Tec 9-Pocket Zip Binder', price: 850000, quantity: 1 },
+      { name: 'Ultra PRO Magnetic One-Touch 35pt Case', price: 95000, quantity: 2 }
     ]
   },
   {
     id: 'ORD-7817',
-    customer: 'Emily Watson',
-    email: 'emily.w@pokefan.net',
+    customer: 'Vũ Hoàng Nam',
+    email: 'hoangnam.v@pokefan.net',
     date: '2026-03-13',
     itemsCount: 2,
-    total: 244.98,
+    total: 5800000,
     status: 'Delivered',
-    paymentMethod: 'Google Pay (Demo)',
-    shippingAddress: '42 Pine Crest, Seattle, WA',
+    paymentMethod: 'ZaloPay (Mô phỏng)',
+    shippingAddress: '230 Lê Văn Sỹ, Quận 3, TP. Hồ Chí Minh',
     items: [
-      { name: 'Pokemon 151 Elite Trainer Box', price: 69.99, quantity: 1 },
-      { name: 'Pokemon 151 Booster Box', price: 174.99, quantity: 1 }
+      { name: 'Pokémon TCG: Scarlet & Violet - 151 Elite Trainer Box', price: 1650000, quantity: 1 },
+      { name: 'Pokémon TCG: Scarlet & Violet - 151 Booster Box (JP)', price: 4150000, quantity: 1 }
     ]
   }
 ];
@@ -98,42 +98,42 @@ export const adminOrders = [
 export const adminCustomers = [
   {
     id: 'CUST-001',
-    name: 'David Miller',
-    email: 'david.m@tcgcollector.io',
-    phone: '+1 (555) 234-5678',
+    name: 'Trần Văn Hải',
+    email: 'hai.tran@tcgcollector.vn',
+    phone: '0903 234 567',
     orders: 14,
-    totalSpent: 4890.50,
+    totalSpent: 122500000,
     tier: 'Platinum VIP',
-    joinedDate: 'Jan 2025'
+    joinedDate: 'Tháng 1/2025'
   },
   {
     id: 'CUST-002',
-    name: 'Michael Chang',
-    email: 'm.chang@duelist.org',
-    phone: '+1 (555) 876-5432',
+    name: 'Lê Minh Quân',
+    email: 'quan.le@duelist.org',
+    phone: '0918 876 543',
     orders: 8,
-    totalSpent: 6250.00,
+    totalSpent: 156000000,
     tier: 'Diamond Grail Hunter',
-    joinedDate: 'Mar 2025'
+    joinedDate: 'Tháng 3/2025'
   },
   {
     id: 'CUST-003',
-    name: 'Sarah Jenkins',
-    email: 'sarah.j@gamermail.com',
-    phone: '+1 (555) 345-6789',
+    name: 'Nguyễn Thị Bích Ngọc',
+    email: 'bichngoc.tcg@gmail.com',
+    phone: '0988 345 678',
     orders: 6,
-    totalSpent: 1120.00,
+    totalSpent: 28500000,
     tier: 'Gold Collector',
-    joinedDate: 'Aug 2025'
+    joinedDate: 'Tháng 8/2025'
   },
   {
     id: 'CUST-004',
-    name: 'Emily Watson',
-    email: 'emily.w@pokefan.net',
-    phone: '+1 (555) 987-6543',
+    name: 'Vũ Hoàng Nam',
+    email: 'hoangnam.v@pokefan.net',
+    phone: '0977 987 654',
     orders: 11,
-    totalSpent: 2340.00,
+    totalSpent: 58400000,
     tier: 'Gold Collector',
-    joinedDate: 'Nov 2024'
+    joinedDate: 'Tháng 11/2024'
   }
 ];

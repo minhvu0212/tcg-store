@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
-import { 
-  ShieldCheck, 
-  CreditCard, 
-  CheckCircle2, 
-  Lock, 
-  ArrowLeft, 
-  Sparkles, 
+import {
+  ShieldCheck,
+  CreditCard,
+  CheckCircle2,
+  Lock,
+  ArrowLeft,
+  Sparkles,
   AlertTriangle,
   Package,
   Truck
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
+import { formatPrice } from '../utils/priceHelper';
 
 export default function Checkout() {
   const { cart, cartTotal, clearCart, navigate, addToast } = useStore();
@@ -30,7 +31,7 @@ export default function Checkout() {
     notes: 'Please pack in extra bubble wrap for grading inspection.'
   });
 
-  const shippingPrice = shippingMethod === 'express' ? 19.99 : (cartTotal > 150 ? 0 : 9.99);
+  const shippingPrice = shippingMethod === 'express' ? 60000 : (cartTotal >= 1500000 ? 0 : 30000);
   const finalTotal = cartTotal + shippingPrice;
 
   const handleChange = (e) => {
@@ -54,7 +55,7 @@ export default function Checkout() {
         <div className="w-20 h-20 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 text-emerald-400 flex items-center justify-center mx-auto shadow-2xl">
           <CheckCircle2 className="w-10 h-10" />
         </div>
-        
+
         <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-[#D9B45B]/15 text-[#D9B45B] border border-[#D9B45B]/30 uppercase tracking-widest">
           Interactive Demo Prototype
         </span>
@@ -78,7 +79,7 @@ export default function Checkout() {
           </div>
           <div className="flex justify-between">
             <span className="text-[#9CA3B5]">Total Simulated:</span>
-            <span className="font-bold text-[#D9B45B] font-mono">${finalTotal.toFixed(2)}</span>
+            <span className="font-bold text-[#D9B45B] font-mono">{formatPrice(finalTotal)}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-[#9CA3B5]">Status:</span>
@@ -106,7 +107,7 @@ export default function Checkout() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      
+
       {/* Top Banner: Clear Demo Notice */}
       <div className="p-3.5 rounded-2xl bg-[#D9B45B]/10 border border-[#D9B45B]/30 flex items-center space-x-3 text-xs text-[#F5DE93]">
         <AlertTriangle className="w-4 h-4 flex-shrink-0 text-[#D9B45B]" />
@@ -123,10 +124,10 @@ export default function Checkout() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-        
+
         {/* Left Form: Shipping Address & Method */}
         <form onSubmit={handlePlaceOrder} className="lg:col-span-7 space-y-8">
-          
+
           {/* 1. Recipient Information */}
           <div className="p-6 rounded-3xl bg-[#111522] border border-[#282E40] space-y-4">
             <h2 className="text-base font-bold text-white uppercase tracking-wider flex items-center space-x-2 border-b border-[#282E40] pb-3">
@@ -213,12 +214,11 @@ export default function Checkout() {
             </h2>
 
             <div className="space-y-2 text-xs">
-              <label 
-                className={`p-4 rounded-2xl border flex items-center justify-between cursor-pointer transition-colors ${
-                  shippingMethod === 'standard' 
-                    ? 'bg-[#171C2B] border-[#D9B45B]/60' 
+              <label
+                className={`p-4 rounded-2xl border flex items-center justify-between cursor-pointer transition-colors ${shippingMethod === 'standard'
+                    ? 'bg-[#171C2B] border-[#D9B45B]/60'
                     : 'bg-[#171C2B]/40 border-[#282E40]'
-                }`}
+                  }`}
               >
                 <div className="flex items-center space-x-3">
                   <input
@@ -234,16 +234,15 @@ export default function Checkout() {
                   </div>
                 </div>
                 <span className="font-mono font-bold text-white">
-                  {cartTotal > 150 ? 'FREE' : '$9.99'}
+                  {cartTotal >= 1500000 ? 'MIỄN PHÍ' : formatPrice(30000)}
                 </span>
               </label>
 
-              <label 
-                className={`p-4 rounded-2xl border flex items-center justify-between cursor-pointer transition-colors ${
-                  shippingMethod === 'express' 
-                    ? 'bg-[#171C2B] border-[#D9B45B]/60' 
+              <label
+                className={`p-4 rounded-2xl border flex items-center justify-between cursor-pointer transition-colors ${shippingMethod === 'express'
+                    ? 'bg-[#171C2B] border-[#D9B45B]/60'
                     : 'bg-[#171C2B]/40 border-[#282E40]'
-                }`}
+                  }`}
               >
                 <div className="flex items-center space-x-3">
                   <input
@@ -254,11 +253,11 @@ export default function Checkout() {
                     className="accent-[#D9B45B]"
                   />
                   <div>
-                    <div className="font-bold text-white">Grail Express Over-Night (1-2 Days)</div>
-                    <div className="text-[#9CA3B5] text-[11px]">Signature required with armored vault crush-box</div>
+                    <div className="font-bold text-white">Hỏa tốc Grail Express (1-2 Ngày)</div>
+                    <div className="text-[#9CA3B5] text-[11px]">Hộp chống sốc chịu lực niêm phong an ninh</div>
                   </div>
                 </div>
-                <span className="font-mono font-bold text-white">$19.99</span>
+                <span className="font-mono font-bold text-white">{formatPrice(60000)}</span>
               </label>
             </div>
           </div>
@@ -274,33 +273,30 @@ export default function Checkout() {
               <button
                 type="button"
                 onClick={() => setPaymentMethod('card')}
-                className={`p-3 rounded-xl border text-center transition-all ${
-                  paymentMethod === 'card'
+                className={`p-3 rounded-xl border text-center transition-all ${paymentMethod === 'card'
                     ? 'bg-[#171C2B] border-[#D9B45B] text-white font-bold'
                     : 'bg-[#171C2B]/40 border-[#282E40] text-[#9CA3B5]'
-                }`}
+                  }`}
               >
                 Credit Card (Demo)
               </button>
               <button
                 type="button"
                 onClick={() => setPaymentMethod('paypal')}
-                className={`p-3 rounded-xl border text-center transition-all ${
-                  paymentMethod === 'paypal'
+                className={`p-3 rounded-xl border text-center transition-all ${paymentMethod === 'paypal'
                     ? 'bg-[#171C2B] border-[#D9B45B] text-white font-bold'
                     : 'bg-[#171C2B]/40 border-[#282E40] text-[#9CA3B5]'
-                }`}
+                  }`}
               >
                 PayPal (Demo)
               </button>
               <button
                 type="button"
                 onClick={() => setPaymentMethod('crypto')}
-                className={`p-3 rounded-xl border text-center transition-all ${
-                  paymentMethod === 'crypto'
+                className={`p-3 rounded-xl border text-center transition-all ${paymentMethod === 'crypto'
                     ? 'bg-[#171C2B] border-[#D9B45B] text-white font-bold'
                     : 'bg-[#171C2B]/40 border-[#282E40] text-[#9CA3B5]'
-                }`}
+                  }`}
               >
                 Crypto / BTC (Demo)
               </button>
@@ -321,7 +317,7 @@ export default function Checkout() {
               className="w-full py-4 rounded-xl bg-gradient-to-r from-[#D9B45B] to-[#B3913E] text-[#090B12] font-black text-xs tracking-wider uppercase hover:brightness-110 shadow-gold-glow flex items-center justify-center space-x-2 transition-all cursor-pointer"
             >
               <Sparkles className="w-4 h-4 stroke-[2.5]" />
-              <span>CONFIRM DEMO ORDER (${finalTotal.toFixed(2)})</span>
+              <span>XÁC NHẬN ĐƠN HÀNG THỬ NGHIỆM ({formatPrice(finalTotal)})</span>
             </button>
           </div>
 
@@ -331,7 +327,7 @@ export default function Checkout() {
         <div className="lg:col-span-5 space-y-6">
           <div className="p-6 rounded-3xl bg-[#111522] border border-[#282E40] space-y-4">
             <h2 className="text-sm font-bold text-white uppercase tracking-wider border-b border-[#282E40] pb-3">
-              Order Summary ({cart.length} Products)
+              Chi tiết giỏ hàng ({cart.length} Sản phẩm)
             </h2>
 
             <div className="max-h-60 overflow-y-auto divide-y divide-[#282E40] pr-1">
@@ -346,12 +342,12 @@ export default function Checkout() {
                     <div>
                       <div className="font-bold text-white line-clamp-1">{product.name}</div>
                       <div className="text-[10px] text-[#9CA3B5]">
-                        Qty: {quantity} • <span className="text-[#D9B45B]">{product.condition}</span>
+                        Số lượng: {quantity} • <span className="text-[#D9B45B]">{product.condition}</span>
                       </div>
                     </div>
                   </div>
                   <div className="font-mono font-bold text-white text-right">
-                    ${(product.price * quantity).toFixed(2)}
+                    {formatPrice(product.price * quantity)}
                   </div>
                 </div>
               ))}
@@ -359,17 +355,17 @@ export default function Checkout() {
 
             <div className="pt-3 border-t border-[#282E40] space-y-2 text-xs">
               <div className="flex justify-between text-[#9CA3B5]">
-                <span>Items Subtotal:</span>
-                <span className="font-mono text-white">${cartTotal.toFixed(2)}</span>
+                <span>Tạm tính hàng:</span>
+                <span className="font-mono text-white">{formatPrice(cartTotal)}</span>
               </div>
               <div className="flex justify-between text-[#9CA3B5]">
-                <span>Shipping:</span>
-                <span className="font-mono text-white">${shippingPrice.toFixed(2)}</span>
+                <span>Phí vận chuyển:</span>
+                <span className="font-mono text-white">{shippingPrice === 0 ? 'MIỄN PHÍ' : formatPrice(shippingPrice)}</span>
               </div>
               <div className="pt-2 border-t border-[#282E40] flex justify-between items-baseline">
-                <span className="text-sm font-bold text-white">Order Total:</span>
+                <span className="text-sm font-bold text-white">Tổng thanh toán:</span>
                 <span className="text-xl font-black text-gold-gradient font-mono">
-                  ${finalTotal.toFixed(2)}
+                  {formatPrice(finalTotal)}
                 </span>
               </div>
             </div>

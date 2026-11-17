@@ -18,6 +18,7 @@ import {
 import { useStore } from '../context/StoreContext';
 import { products } from '../data/products';
 import { categories } from '../data/categories';
+import { formatPrice } from '../utils/priceHelper';
 
 export default function Header() {
   const { 
@@ -407,8 +408,8 @@ export default function Header() {
                               <span>•</span>
                               <span className="text-[#D9B45B]">{product.rarity}</span>
                             </div>
-                            <div className="text-xs font-bold text-white mt-1">
-                              ${product.price.toFixed(2)}
+                            <div className="text-xs font-bold text-[#D9B45B] mt-1 font-mono">
+                              {formatPrice(product.price)}
                             </div>
                           </div>
                         </div>

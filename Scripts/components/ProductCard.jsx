@@ -1,6 +1,7 @@
 import React from 'react';
-import { Eye, Heart, ShoppingBag, Sparkles, Star } from 'lucide-react';
+import { Eye, Heart, ShoppingBag, Sparkles, Star, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
+import { formatPrice } from '../utils/priceHelper';
 
 export default function ProductCard({ product }) {
   const { navigate, addToCart, toggleWishlist, isWishlisted, setQuickViewProduct } = useStore();
@@ -115,14 +116,31 @@ export default function ProductCard({ product }) {
       {/* Pricing & Add to Cart Footer */}
       <div className="mt-4 pt-3 border-t border-[#282E40]/80 flex items-center justify-between">
         <div>
-          <div className="text-[10px] text-[#656D82] uppercase tracking-wider font-semibold">Demo Price</div>
+          <div className="flex items-center space-x-1.5 text-[10px] uppercase tracking-wider font-semibold">
+            {product.stock > 0 ? (
+              <span className="text-emerald-400 flex items-center space-x-0.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block animate-pulse"></span>
+                <span>Còn {product.stock}</span>
+              </span>
+            ) : (
+              <span className="text-red-400 flex items-center space-x-0.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-400 inline-block"></span>
+                <span>Hết hàng</span>
+              </span>
+            )}
+            {product.isPriceUnverified && (
+              <span className="text-amber-400/90 text-[9px] font-bold">
+                • Tham khảo
+              </span>
+            )}
+          </div>
           <div className="flex items-baseline space-x-2">
             <span className="font-black text-base text-white">
-              ${product.price.toFixed(2)}
+              {formatPrice(product.price)}
             </span>
             {product.originalPrice && (
               <span className="text-xs text-[#656D82] line-through">
-                ${product.originalPrice.toFixed(2)}
+                {formatPrice(product.originalPrice)}
               </span>
             )}
           </div>
@@ -131,10 +149,15 @@ export default function ProductCard({ product }) {
         {/* Quick Add Button */}
         <button
           onClick={() => addToCart(product, 1)}
-          className="px-3 py-2 rounded-xl bg-gradient-to-r from-[#D9B45B] to-[#B3913E] text-[#090B12] font-black text-xs hover:brightness-110 hover:shadow-gold-glow transition-all flex items-center space-x-1.5 cursor-pointer"
+          disabled={product.stock <= 0}
+          className={`px-3 py-2 rounded-xl font-black text-xs flex items-center space-x-1.5 transition-all cursor-pointer ${
+            product.stock > 0
+              ? 'bg-gradient-to-r from-[#D9B45B] to-[#B3913E] text-[#090B12] hover:brightness-110 hover:shadow-gold-glow'
+              : 'bg-[#282E40] text-[#656D82] cursor-not-allowed'
+          }`}
         >
           <ShoppingBag className="w-3.5 h-3.5 stroke-[2.5]" />
-          <span>Add</span>
+          <span>{product.stock > 0 ? 'Thêm' : 'Hết'}</span>
         </button>
       </div>
     </div>

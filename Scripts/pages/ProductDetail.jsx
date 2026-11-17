@@ -12,12 +12,14 @@ import {
   Eye, 
   Package, 
   Clock, 
-  Layers 
+  Layers,
+  AlertCircle 
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { products } from '../data/products';
 import ProductCard from '../components/ProductCard';
 import ConditionGuideModal from '../components/ConditionGuideModal';
+import { formatPrice } from '../utils/priceHelper';
 
 export default function ProductDetail() {
   const { 
@@ -184,28 +186,45 @@ export default function ProductDetail() {
           {/* Price Box */}
           <div className="p-5 rounded-2xl bg-[#171C2B] border border-[#282E40] flex flex-wrap items-baseline justify-between gap-4">
             <div>
-              <div className="text-[10px] text-[#656D82] uppercase tracking-wider font-semibold">
-                Vault Collector Demo Price
+              <div className="text-[10px] text-[#656D82] uppercase tracking-wider font-semibold flex items-center space-x-1.5">
+                <span>{product.isPriceUnverified ? 'Giá tham khảo (Chưa xác minh thực tế)' : 'Giá niêm yết tham khảo (Mô phỏng)'}</span>
+                {product.isPriceUnverified && (
+                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/40">
+                    Chưa xác minh
+                  </span>
+                )}
               </div>
               <div className="flex items-baseline space-x-3 mt-1">
-                <span className="text-3xl font-black text-white">
-                  ${product.price.toFixed(2)}
+                <span className="text-3xl font-black text-white font-mono">
+                  {formatPrice(product.price)}
                 </span>
                 {product.originalPrice && (
-                  <span className="text-base text-[#656D82] line-through">
-                    ${product.originalPrice.toFixed(2)}
+                  <span className="text-base text-[#656D82] line-through font-mono">
+                    {formatPrice(product.originalPrice)}
                   </span>
                 )}
               </div>
             </div>
 
             <div className="text-right">
-              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+              <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border ${
+                product.stock > 0
+                  ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                  : 'bg-red-500/15 text-red-400 border-red-500/30'
+              }`}>
                 <Check className="w-3.5 h-3.5 mr-1" />
-                {product.stock > 0 ? `In Stock (${product.stock} available)` : 'Out of Stock'}
+                {product.stock > 0 ? `Còn hàng (${product.stock} có sẵn)` : 'Tạm hết hàng'}
               </span>
-              <div className="text-[10px] text-[#9CA3B5] mt-1">Ready for armored dispatch</div>
+              <div className="text-[10px] text-[#9CA3B5] mt-1">Đóng gói bọc giáp bảo vệ cao cấp</div>
             </div>
+
+            {/* Holy Grail / High-Value Price Disclaimer Notice */}
+            {product.isPriceUnverified && (
+              <div className="w-full mt-2 pt-3 border-t border-[#282E40]/80 text-[11px] text-amber-300/90 bg-amber-500/10 border border-amber-500/20 px-3 py-2 rounded-xl flex items-center space-x-2">
+                <AlertCircle className="w-4 h-4 flex-shrink-0 text-amber-400" />
+                <span>{product.priceDisclaimer || 'Mức giá thẻ sưu tầm mang tính chất tham khảo ước tính, chưa xác thực theo giá giao dịch thị trường thực tế.'}</span>
+              </div>
+            )}
           </div>
 
           {/* Specifications Grid */}
@@ -312,7 +331,7 @@ export default function ProductDetail() {
           <div className="p-4 rounded-2xl bg-[#111522] border border-[#282E40] space-y-2 text-xs text-[#9CA3B5]">
             <div className="flex items-center space-x-2">
               <Check className="w-4 h-4 text-emerald-400" />
-              <span>Free insured armored shipping on orders over $150</span>
+              <span>Miễn phí vận chuyển bảo hiểm cho đơn hàng từ {formatPrice(1500000)}</span>
             </div>
             <div className="flex items-center space-x-2">
               <Check className="w-4 h-4 text-emerald-400" />

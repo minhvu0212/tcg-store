@@ -10,6 +10,7 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
+import { formatPrice } from '../utils/priceHelper';
 
 export default function Cart() {
   const { 
@@ -38,8 +39,8 @@ export default function Cart() {
     }
   };
 
-  const shippingCost = cartTotal > 150 ? 0 : (cart.length > 0 ? 9.99 : 0);
-  const discountAmount = (cartTotal * discountPercent) / 100;
+  const shippingCost = cartTotal >= 1500000 ? 0 : (cart.length > 0 ? 30000 : 0);
+  const discountAmount = Math.round((cartTotal * discountPercent) / 100);
   const finalTotal = Math.max(0, cartTotal - discountAmount + shippingCost);
 
   if (cart.length === 0) {
@@ -126,8 +127,8 @@ export default function Cart() {
                     <div className="text-[11px] text-[#9CA3B5]">
                       Condition: <span className="text-white font-medium">{product.condition}</span>
                     </div>
-                    <div className="text-xs font-black text-[#D9B45B] sm:hidden">
-                      ${product.price.toFixed(2)} each
+                    <div className="text-xs font-black text-[#D9B45B] sm:hidden font-mono">
+                      {formatPrice(product.price)} / thẻ
                     </div>
                   </div>
                 </div>
@@ -153,11 +154,11 @@ export default function Cart() {
 
                   {/* Subtotal */}
                   <div className="text-right min-w-[90px]">
-                    <div className="text-sm font-black text-white">
-                      ${(product.price * quantity).toFixed(2)}
+                    <div className="text-sm font-black text-white font-mono">
+                      {formatPrice(product.price * quantity)}
                     </div>
-                    <div className="text-[10px] text-[#656D82]">
-                      ${product.price.toFixed(2)} ea
+                    <div className="text-[10px] text-[#656D82] font-mono">
+                      {formatPrice(product.price)} / sp
                     </div>
                   </div>
 
@@ -192,35 +193,35 @@ export default function Cart() {
             {/* Calculations */}
             <div className="space-y-3 text-xs">
               <div className="flex justify-between text-[#9CA3B5]">
-                <span>Items Subtotal:</span>
-                <span className="text-white font-bold font-mono">${cartTotal.toFixed(2)}</span>
+                <span>Tạm tính hàng hóa:</span>
+                <span className="text-white font-bold font-mono">{formatPrice(cartTotal)}</span>
               </div>
 
               {discountPercent > 0 && (
                 <div className="flex justify-between text-emerald-400">
-                  <span>Collector Discount ({discountPercent}%):</span>
-                  <span className="font-bold font-mono">-${discountAmount.toFixed(2)}</span>
+                  <span>Giảm giá Collector ({discountPercent}%):</span>
+                  <span className="font-bold font-mono">-{formatPrice(discountAmount)}</span>
                 </div>
               )}
 
               <div className="flex justify-between text-[#9CA3B5]">
-                <span>Insured Armored Shipping:</span>
+                <span>Phí vận chuyển bọc giáp:</span>
                 <span className="text-white font-bold font-mono">
                   {shippingCost === 0 ? (
-                    <span className="text-emerald-400">FREE ($150+ Order)</span>
+                    <span className="text-emerald-400">Miễn phí (Đơn từ 1.500.000 ₫)</span>
                   ) : (
-                    `$${shippingCost.toFixed(2)}`
+                    formatPrice(shippingCost)
                   )}
                 </span>
               </div>
 
               <div className="pt-3 border-t border-[#282E40] flex justify-between items-baseline">
                 <div>
-                  <div className="text-sm font-bold text-white">Estimated Total:</div>
-                  <div className="text-[10px] text-[#656D82]">Demo simulation only</div>
+                  <div className="text-sm font-bold text-white">Tổng cộng thanh toán:</div>
+                  <div className="text-[10px] text-[#656D82]">Đã bao gồm thuế & bọc thẻ tiêu chuẩn</div>
                 </div>
                 <div className="text-2xl font-black text-gold-gradient font-mono">
-                  ${finalTotal.toFixed(2)}
+                  {formatPrice(finalTotal)}
                 </div>
               </div>
             </div>

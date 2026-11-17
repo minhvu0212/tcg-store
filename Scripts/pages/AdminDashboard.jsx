@@ -26,6 +26,7 @@ import { products } from '../data/products';
 import { getAssetUrl } from '../utils/assetHelper';
 import { adminOverview, adminOrders, adminCustomers } from '../data/adminMock';
 import { categories } from '../data/categories';
+import { formatPrice } from '../utils/priceHelper';
 
 export default function AdminDashboard() {
   const { navigate, addToast } = useStore();
@@ -183,7 +184,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
               <div className="text-2xl font-black text-white font-mono">
-                ${adminOverview.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                {formatPrice(adminOverview.totalRevenue)}
               </div>
               <div className="flex items-center text-xs text-emerald-400 space-x-1">
                 <ArrowUpRight className="w-3.5 h-3.5" />
@@ -254,11 +255,11 @@ export default function AdminDashboard() {
               {/* Bar Graph Simulation */}
               <div className="h-60 flex items-end justify-between gap-4 pt-4 px-2">
                 {adminOverview.chartData.map((d, i) => {
-                  const heightPercent = (d.revenue / 32000) * 100;
+                  const heightPercent = Math.min(100, (d.revenue / 800000000) * 100);
                   return (
                     <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
                       <div className="text-[10px] text-[#9CA3B5] font-mono opacity-0 group-hover:opacity-100 transition-opacity">
-                        ${(d.revenue / 1000).toFixed(1)}k
+                        {(d.revenue / 1000000).toFixed(0)}tr
                       </div>
                       <div className="w-full bg-[#171C2B] rounded-xl overflow-hidden h-44 flex items-end p-1">
                         <div 
@@ -290,7 +291,7 @@ export default function AdminDashboard() {
                         <div className="text-[10px] text-[#D9B45B]">{p.rarity}</div>
                       </div>
                     </div>
-                    <span className="font-mono font-bold text-white">${p.price.toFixed(0)}</span>
+                    <span className="font-mono font-bold text-white text-[11px]">{formatPrice(p.price)}</span>
                   </div>
                 ))}
               </div>
@@ -332,7 +333,7 @@ export default function AdminDashboard() {
                         </span>
                       </td>
                       <td className="py-3 text-right font-mono font-bold text-white">
-                        ${ord.total.toFixed(2)}
+                        {formatPrice(ord.total)}
                       </td>
                     </tr>
                   ))}
@@ -405,7 +406,7 @@ export default function AdminDashboard() {
                         {p.stock} units
                       </span>
                     </td>
-                    <td className="py-3 font-mono font-bold text-white">${p.price.toFixed(2)}</td>
+                    <td className="py-3 font-mono font-bold text-white">{formatPrice(p.price)}</td>
                     <td className="py-3 text-right">
                       <div className="flex items-center justify-end space-x-2">
                         <button
@@ -478,7 +479,7 @@ export default function AdminDashboard() {
                       </select>
                     </td>
                     <td className="py-3 text-right font-mono font-bold text-white">
-                      ${ord.total.toFixed(2)}
+                      {formatPrice(ord.total)}
                     </td>
                   </tr>
                 ))}
@@ -523,7 +524,7 @@ export default function AdminDashboard() {
                       </span>
                     </td>
                     <td className="py-3 text-white font-mono">{cust.orders} orders</td>
-                    <td className="py-3 font-mono font-bold text-white">${cust.totalSpent.toFixed(2)}</td>
+                    <td className="py-3 font-mono font-bold text-white">{formatPrice(cust.totalSpent)}</td>
                     <td className="py-3 text-[#656D82]">{cust.joinedDate}</td>
                     <td className="py-3 text-right">
                       <button 

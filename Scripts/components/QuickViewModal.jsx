@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, ShoppingBag, Heart, ShieldCheck, Sparkles, Check, ArrowRight } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
+import { formatPrice } from '../utils/priceHelper';
 
 export default function QuickViewModal() {
   const { 
@@ -88,17 +89,26 @@ export default function QuickViewModal() {
 
               {/* Price */}
               <div className="mt-3 flex items-baseline space-x-3">
-                <span className="text-2xl sm:text-3xl font-black text-white">
-                  ${product.price.toFixed(2)}
+                <span className="text-2xl sm:text-3xl font-black text-white font-mono">
+                  {formatPrice(product.price)}
                 </span>
                 {product.originalPrice && (
-                  <span className="text-sm text-[#656D82] line-through">
-                    ${product.originalPrice.toFixed(2)}
+                  <span className="text-sm text-[#656D82] line-through font-mono">
+                    {formatPrice(product.originalPrice)}
                   </span>
                 )}
-                <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold uppercase">
-                  In Stock ({product.stock} left)
+                <span className={`text-[10px] px-2 py-0.5 rounded border font-bold uppercase ${
+                  product.stock > 0 
+                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
+                    : 'bg-red-500/10 text-red-400 border-red-500/20'
+                }`}>
+                  {product.stock > 0 ? `Còn hàng (${product.stock} có sẵn)` : 'Hết hàng'}
                 </span>
+                {product.isPriceUnverified && (
+                  <span className="text-[10px] px-2 py-0.5 rounded border font-bold uppercase bg-amber-500/10 text-amber-400 border-amber-500/30">
+                    Giá tham khảo
+                  </span>
+                )}
               </div>
 
               {/* Condition & Spec Badges */}

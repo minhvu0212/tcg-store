@@ -2,6 +2,7 @@ import React from 'react';
 import { Package, Truck, CheckCircle2, Clock, AlertTriangle, ArrowRight, ExternalLink } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { adminOrders } from '../data/adminMock';
+import { formatPrice } from '../utils/priceHelper';
 
 export default function Orders() {
   const { navigate } = useStore();
@@ -61,7 +62,7 @@ export default function Orders() {
                   {order.status}
                 </span>
                 <span className="font-mono font-bold text-white text-sm">
-                  ${order.total.toFixed(2)}
+                  {formatPrice(order.total)}
                 </span>
               </div>
             </div>
@@ -75,8 +76,8 @@ export default function Orders() {
                 {order.items.map((item, idx) => (
                   <div key={idx} className="py-2 flex items-center justify-between text-xs">
                     <span className="text-white font-medium">{item.name}</span>
-                    <span className="text-[#9CA3B5]">
-                      {item.quantity}x @ ${item.price.toFixed(2)}
+                    <span className="text-[#9CA3B5] font-mono">
+                      {item.quantity}x @ {formatPrice(item.price)}
                     </span>
                   </div>
                 ))}

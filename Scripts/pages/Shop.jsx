@@ -9,11 +9,23 @@ import {
   RotateCcw,
   Check,
   Grid,
-  List
+  List,
+  CheckCircle2
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { products, tcgSeriesList, productTypes, rarities, conditions } from '../data/products';
 import ProductCard from '../components/ProductCard';
+import { formatPrice } from '../utils/priceHelper';
+
+const MAX_CATALOG_PRICE = 55000000;
+
+const PRICE_PRESETS = [
+  { label: 'Tất cả mức giá', min: 0, max: MAX_CATALOG_PRICE },
+  { label: 'Dưới 100.000 ₫', min: 0, max: 100000 },
+  { label: '100.000 ₫ – 500.000 ₫', min: 100000, max: 500000 },
+  { label: '500.000 ₫ – 2.000.000 ₫', min: 500000, max: 2000000 },
+  { label: 'Trên 2.000.000 ₫ (Grail)', min: 2000000, max: MAX_CATALOG_PRICE }
+];
 
 export default function Shop() {
   const { categoryFilter, setCategoryFilter, navigate } = useStore();
@@ -23,7 +35,9 @@ export default function Shop() {
   const [selectedRarity, setSelectedRarity] = useState('All Rarities');
   const [selectedCondition, setSelectedCondition] = useState('All Conditions');
   const [selectedLanguage, setSelectedLanguage] = useState('All');
-  const [priceRange, setPriceRange] = useState(3000);
+  const [priceRange, setPriceRange] = useState(MAX_CATALOG_PRICE);
+  const [selectedPreset, setSelectedPreset] = useState(0);
+  const [onlyInStock, setOnlyInStock] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('featured');
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
@@ -35,8 +49,16 @@ export default function Shop() {
     }
   }, [categoryFilter]);
 
+  // Handle Preset Selection
+  const handleSelectPreset = (index) => {
+    setSelectedPreset(index);
+    setPriceRange(PRICE_PRESETS[index].max);
+  };
+
   // Filter & Sort Logic
   const filteredProducts = useMemo(() => {
+    const activePreset = PRICE_PRESETS[selectedPreset];
+
     return products.filter((item) => {
       // Series filter
       if (selectedSeries !== 'All' && item.tcgSeries !== selectedSeries) {
@@ -58,17 +80,26 @@ export default function Shop() {
       if (selectedLanguage !== 'All' && item.language !== selectedLanguage) {
         return false;
       }
-      // Price filter
+      // In-stock filter
+      if (onlyInStock && item.stock <= 0) {
+        return false;
+      }
+      // Preset Min Price filter
+      if (activePreset && item.price < activePreset.min) {
+        return false;
+      }
+      // Price Cap filter
       if (item.price > priceRange) {
         return false;
       }
-      // Search query
+      // Search query (name, code, series, description, japaneseName)
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const matchName = item.name.toLowerCase().includes(q);
-        const matchCode = item.productCode.toLowerCase().includes(q);
-        const matchDesc = item.description.toLowerCase().includes(q);
-        if (!matchName && !matchCode && !matchDesc) return false;
+        const matchJp = item.japaneseName ? item.japaneseName.toLowerCase().includes(q) : false;
+        const matchCode = item.productCode ? item.productCode.toLowerCase().includes(q) : false;
+        const matchDesc = item.description ? item.description.toLowerCase().includes(q) : false;
+        if (!matchName && !matchJp && !matchCode && !matchDesc) return false;
       }
       return true;
     }).sort((a, b) => {
@@ -82,12 +113,12 @@ export default function Shop() {
         case 'bestselling':
           return (b.isBestSeller ? 1 : 0) - (a.isBestSeller ? 1 : 0);
         case 'rating':
-          return b.rating - a.rating;
+          return (b.rating || 0) - (a.rating || 0);
         default:
           return (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0);
       }
     });
-  }, [selectedSeries, selectedType, selectedRarity, selectedCondition, selectedLanguage, priceRange, searchQuery, sortBy]);
+  }, [selectedSeries, selectedType, selectedRarity, selectedCondition, selectedLanguage, priceRange, selectedPreset, onlyInStock, searchQuery, sortBy]);
 
   const handleResetFilters = () => {
     setSelectedSeries('All');
@@ -96,7 +127,9 @@ export default function Shop() {
     setSelectedRarity('All Rarities');
     setSelectedCondition('All Conditions');
     setSelectedLanguage('All');
-    setPriceRange(3000);
+    setSelectedPreset(0);
+    setPriceRange(MAX_CATALOG_PRICE);
+    setOnlyInStock(false);
     setSearchQuery('');
     setSortBy('featured');
   };
@@ -107,7 +140,9 @@ export default function Shop() {
     selectedRarity !== 'All Rarities',
     selectedCondition !== 'All Conditions',
     selectedLanguage !== 'All',
-    priceRange < 3000,
+    selectedPreset !== 0,
+    priceRange < MAX_CATALOG_PRICE,
+    onlyInStock,
     searchQuery.trim().length > 0
   ].filter(Boolean).length;
 
@@ -118,9 +153,9 @@ export default function Shop() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#282E40] pb-6">
         <div>
           <nav className="text-xs text-[#9CA3B5] mb-2 flex items-center space-x-2">
-            <button onClick={() => navigate('home')} className="hover:text-white transition-colors">Home</button>
+            <button onClick={() => navigate('home')} className="hover:text-white transition-colors cursor-pointer">Trang chủ</button>
             <span>/</span>
-            <span className="text-[#D9B45B] font-semibold">Shop Products</span>
+            <span className="text-[#D9B45B] font-semibold">Kho sản phẩm TCG</span>
             {selectedSeries !== 'All' && (
               <>
                 <span>/</span>
@@ -129,10 +164,10 @@ export default function Shop() {
             )}
           </nav>
           <h1 className="text-3xl font-black text-white font-['Cinzel'] tracking-tight">
-            {selectedSeries === 'All' ? 'ALL TCG PRODUCTS' : `${selectedSeries.toUpperCase()} COLLECTION`}
+            {selectedSeries === 'All' ? 'TẤT CẢ SẢN PHẨM TCG' : `BỘ SƯU TẬP ${selectedSeries.toUpperCase()}`}
           </h1>
           <p className="text-xs text-[#9CA3B5] mt-1">
-            Displaying {filteredProducts.length} authentic verified trading card items.
+            Hiển thị <span className="text-white font-bold font-mono">{filteredProducts.length}</span> sản phẩm chính hãng (Tổng kho {products.length} sản phẩm).
           </p>
         </div>
 
@@ -145,14 +180,14 @@ export default function Shop() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Filter within shop..."
-              className="w-48 sm:w-60 bg-[#111522] border border-[#282E40] rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-[#656D82] focus:outline-none focus:border-[#D9B45B]"
+              placeholder="Tìm theo tên thẻ, mã số..."
+              className="w-48 sm:w-64 bg-[#111522] border border-[#282E40] rounded-xl pl-9 pr-8 py-2 text-xs text-white placeholder-[#656D82] focus:outline-none focus:border-[#D9B45B]"
             />
             <Search className="w-3.5 h-3.5 text-[#656D82] absolute left-3 top-2.5" />
             {searchQuery && (
               <button 
                 onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-2 text-[#656D82] hover:text-white text-xs"
+                className="absolute right-2.5 top-2 text-[#656D82] hover:text-white text-xs cursor-pointer"
               >
                 ×
               </button>
@@ -161,28 +196,28 @@ export default function Shop() {
 
           {/* Sort Selector */}
           <div className="flex items-center space-x-2 bg-[#111522] border border-[#282E40] rounded-xl px-3 py-1.5">
-            <span className="text-[11px] text-[#656D82] font-semibold whitespace-nowrap">Sort:</span>
+            <span className="text-[11px] text-[#656D82] font-semibold whitespace-nowrap">Sắp xếp:</span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
               className="bg-transparent text-xs text-white font-medium focus:outline-none cursor-pointer"
             >
-              <option value="featured" className="bg-[#111522] text-white">Featured</option>
-              <option value="newest" className="bg-[#111522] text-white">Newest Arrivals</option>
-              <option value="bestselling" className="bg-[#111522] text-white">Best Selling</option>
-              <option value="price-asc" className="bg-[#111522] text-white">Price: Low to High</option>
-              <option value="price-desc" className="bg-[#111522] text-white">Price: High to Low</option>
-              <option value="rating" className="bg-[#111522] text-white">Highest Rated</option>
+              <option value="featured" className="bg-[#111522] text-white">Nổi bật nhất</option>
+              <option value="newest" className="bg-[#111522] text-white">Mới cập bến</option>
+              <option value="bestselling" className="bg-[#111522] text-white">Bán chạy nhất</option>
+              <option value="price-asc" className="bg-[#111522] text-white">Giá: Thấp đến Cao</option>
+              <option value="price-desc" className="bg-[#111522] text-white">Giá: Cao đến Thấp (Grails)</option>
+              <option value="rating" className="bg-[#111522] text-white">Đánh giá cao</option>
             </select>
           </div>
 
           {/* Mobile Filter Toggle Button */}
           <button
             onClick={() => setMobileFilterOpen(!mobileFilterOpen)}
-            className="lg:hidden px-3.5 py-2 rounded-xl bg-[#171C2B] border border-[#282E40] text-xs font-bold text-white flex items-center space-x-1.5"
+            className="lg:hidden px-3.5 py-2 rounded-xl bg-[#171C2B] border border-[#282E40] text-xs font-bold text-white flex items-center space-x-1.5 cursor-pointer"
           >
             <SlidersHorizontal className="w-3.5 h-3.5 text-[#D9B45B]" />
-            <span>Filters ({activeFiltersCount})</span>
+            <span>Bộ lọc ({activeFiltersCount})</span>
           </button>
         </div>
       </div>
@@ -190,37 +225,49 @@ export default function Shop() {
       {/* Active Filter Tags */}
       {activeFiltersCount > 0 && (
         <div className="flex flex-wrap items-center gap-2 pt-1">
-          <span className="text-xs text-[#9CA3B5] mr-1">Active Filters:</span>
+          <span className="text-xs text-[#9CA3B5] mr-1">Đang lọc:</span>
           {selectedSeries !== 'All' && (
             <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs bg-[#171C2B] border border-[#D9B45B]/40 text-[#D9B45B] font-semibold">
-              Series: {selectedSeries}
-              <button onClick={() => { setSelectedSeries('All'); setCategoryFilter('All'); }} className="ml-1.5 hover:text-white">×</button>
+              Dòng: {selectedSeries}
+              <button onClick={() => { setSelectedSeries('All'); setCategoryFilter('All'); }} className="ml-1.5 hover:text-white cursor-pointer">×</button>
             </span>
           )}
           {selectedType !== 'All Types' && (
             <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs bg-[#171C2B] border border-[#282E40] text-white font-semibold">
-              Type: {selectedType}
-              <button onClick={() => setSelectedType('All Types')} className="ml-1.5 text-[#9CA3B5] hover:text-white">×</button>
+              Loại: {selectedType}
+              <button onClick={() => setSelectedType('All Types')} className="ml-1.5 text-[#9CA3B5] hover:text-white cursor-pointer">×</button>
+            </span>
+          )}
+          {selectedPreset !== 0 && (
+            <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs bg-[#171C2B] border border-[#282E40] text-emerald-400 font-semibold">
+              Khoảng giá: {PRICE_PRESETS[selectedPreset].label}
+              <button onClick={() => handleSelectPreset(0)} className="ml-1.5 text-[#9CA3B5] hover:text-white cursor-pointer">×</button>
+            </span>
+          )}
+          {priceRange < MAX_CATALOG_PRICE && selectedPreset === 0 && (
+            <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs bg-[#171C2B] border border-[#282E40] text-white font-semibold">
+              Giá tối đa: {formatPrice(priceRange)}
+              <button onClick={() => setPriceRange(MAX_CATALOG_PRICE)} className="ml-1.5 text-[#9CA3B5] hover:text-white cursor-pointer">×</button>
             </span>
           )}
           {selectedRarity !== 'All Rarities' && (
             <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs bg-[#171C2B] border border-[#282E40] text-white font-semibold">
-              Rarity: {selectedRarity}
-              <button onClick={() => setSelectedRarity('All Rarities')} className="ml-1.5 text-[#9CA3B5] hover:text-white">×</button>
+              Độ hiếm: {selectedRarity}
+              <button onClick={() => setSelectedRarity('All Rarities')} className="ml-1.5 text-[#9CA3B5] hover:text-white cursor-pointer">×</button>
             </span>
           )}
-          {priceRange < 3000 && (
-            <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs bg-[#171C2B] border border-[#282E40] text-white font-semibold">
-              Max Price: ${priceRange}
-              <button onClick={() => setPriceRange(3000)} className="ml-1.5 text-[#9CA3B5] hover:text-white">×</button>
+          {onlyInStock && (
+            <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-semibold">
+              Chỉ hàng có sẵn
+              <button onClick={() => setOnlyInStock(false)} className="ml-1.5 hover:text-white cursor-pointer">×</button>
             </span>
           )}
           <button
             onClick={handleResetFilters}
-            className="text-xs font-bold text-[#F43F5E] hover:underline ml-2 flex items-center space-x-1"
+            className="text-xs font-bold text-[#F43F5E] hover:underline ml-2 flex items-center space-x-1 cursor-pointer"
           >
             <RotateCcw className="w-3 h-3" />
-            <span>Reset All</span>
+            <span>Xóa tất cả</span>
           </button>
         </div>
       )}
@@ -238,8 +285,8 @@ export default function Shop() {
         >
           {/* Mobile header */}
           <div className="flex items-center justify-between lg:hidden pb-4 border-b border-[#282E40]">
-            <h3 className="font-bold text-sm text-white">Filter Products</h3>
-            <button onClick={() => setMobileFilterOpen(false)} className="text-[#9CA3B5]">
+            <h3 className="font-bold text-sm text-white">Bộ lọc sản phẩm</h3>
+            <button onClick={() => setMobileFilterOpen(false)} className="text-[#9CA3B5] cursor-pointer">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -247,7 +294,7 @@ export default function Shop() {
           {/* 1. TCG Series Filter */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold text-white uppercase tracking-wider border-l-2 border-[#D9B45B] pl-2">
-              TCG Series
+              Dòng Game TCG
             </h4>
             <div className="space-y-1.5">
               {tcgSeriesList.map((series) => (
@@ -257,13 +304,13 @@ export default function Shop() {
                     setSelectedSeries(series);
                     setCategoryFilter(series);
                   }}
-                  className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition-colors ${
+                  className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition-colors cursor-pointer ${
                     selectedSeries === series
                       ? 'bg-gradient-to-r from-[#D9B45B] to-[#B3913E] text-[#090B12] shadow-gold-glow'
                       : 'text-[#9CA3B5] hover:text-white hover:bg-[#171C2B]'
                   }`}
                 >
-                  <span>{series === 'All' ? 'All Franchises' : series}</span>
+                  <span>{series === 'All' ? 'Tất cả các dòng' : series}</span>
                   {selectedSeries === series && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                 </button>
               ))}
@@ -273,14 +320,14 @@ export default function Shop() {
           {/* 2. Product Type Filter */}
           <div className="space-y-3 pt-4 border-t border-[#282E40]">
             <h4 className="text-xs font-bold text-white uppercase tracking-wider border-l-2 border-[#8957E5] pl-2">
-              Product Type
+              Phân loại sản phẩm
             </h4>
             <div className="space-y-1">
               {productTypes.map((type) => (
                 <button
                   key={type}
                   onClick={() => setSelectedType(type)}
-                  className={`w-full text-left px-3 py-1.5 rounded-lg text-xs transition-colors flex items-center justify-between ${
+                  className={`w-full text-left px-3 py-1.5 rounded-lg text-xs transition-colors flex items-center justify-between cursor-pointer ${
                     selectedType === type
                       ? 'text-[#8957E5] font-bold bg-[#8957E5]/10'
                       : 'text-[#9CA3B5] hover:text-white'
@@ -293,43 +340,81 @@ export default function Shop() {
             </div>
           </div>
 
-          {/* 3. Price Range Slider */}
+          {/* 3. Price Preset Brackets & Slider */}
           <div className="space-y-3 pt-4 border-t border-[#282E40]">
             <div className="flex items-center justify-between">
               <h4 className="text-xs font-bold text-white uppercase tracking-wider border-l-2 border-[#438DFF] pl-2">
-                Price Cap
+                Phân khúc giá (VNĐ)
               </h4>
               <span className="text-xs font-black text-[#D9B45B] font-mono">
-                ${priceRange.toFixed(0)}
+                {formatPrice(priceRange)}
               </span>
             </div>
-            <input
-              type="range"
-              min="10"
-              max="3000"
-              step="20"
-              value={priceRange}
-              onChange={(e) => setPriceRange(Number(e.target.value))}
-              className="w-full accent-[#D9B45B] cursor-pointer"
-            />
-            <div className="flex justify-between text-[10px] text-[#656D82] font-mono">
-              <span>$10</span>
-              <span>$1500</span>
-              <span>$3000+</span>
+
+            {/* Presets List */}
+            <div className="space-y-1">
+              {PRICE_PRESETS.map((preset, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handleSelectPreset(idx)}
+                  className={`w-full text-left px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-colors flex items-center justify-between cursor-pointer ${
+                    selectedPreset === idx
+                      ? 'text-[#438DFF] font-bold bg-[#438DFF]/15 border border-[#438DFF]/30'
+                      : 'text-[#9CA3B5] hover:text-white hover:bg-[#171C2B]'
+                  }`}
+                >
+                  <span>{preset.label}</span>
+                  {selectedPreset === idx && <Check className="w-3 h-3" />}
+                </button>
+              ))}
+            </div>
+
+            {/* Slider */}
+            <div className="pt-2">
+              <input
+                type="range"
+                min="30000"
+                max={MAX_CATALOG_PRICE}
+                step="500000"
+                value={priceRange}
+                onChange={(e) => {
+                  setPriceRange(Number(e.target.value));
+                  setSelectedPreset(0);
+                }}
+                className="w-full accent-[#D9B45B] cursor-pointer"
+              />
+              <div className="flex justify-between text-[10px] text-[#656D82] font-mono">
+                <span>30k ₫</span>
+                <span>25tr ₫</span>
+                <span>55tr+ ₫</span>
+              </div>
             </div>
           </div>
 
-          {/* 4. Rarity Filter */}
+          {/* 4. In-Stock Filter Toggle */}
+          <div className="pt-4 border-t border-[#282E40]">
+            <label className="flex items-center space-x-2.5 cursor-pointer text-xs">
+              <input
+                type="checkbox"
+                checked={onlyInStock}
+                onChange={(e) => setOnlyInStock(e.target.checked)}
+                className="accent-[#10B981] w-4 h-4 rounded cursor-pointer"
+              />
+              <span className="text-white font-medium">Chỉ hiện sản phẩm còn hàng</span>
+            </label>
+          </div>
+
+          {/* 5. Rarity Grade Filter */}
           <div className="space-y-3 pt-4 border-t border-[#282E40]">
             <h4 className="text-xs font-bold text-white uppercase tracking-wider border-l-2 border-[#10B981] pl-2">
-              Rarity Grade
+              Độ hiếm thẻ (Rarity)
             </h4>
-            <div className="space-y-1 max-h-40 overflow-y-auto pr-1">
+            <div className="space-y-1 max-h-48 overflow-y-auto pr-1">
               {rarities.map((r) => (
                 <button
                   key={r}
                   onClick={() => setSelectedRarity(r)}
-                  className={`w-full text-left px-3 py-1.5 rounded-lg text-xs transition-colors flex items-center justify-between ${
+                  className={`w-full text-left px-3 py-1.5 rounded-lg text-xs transition-colors flex items-center justify-between cursor-pointer ${
                     selectedRarity === r
                       ? 'text-emerald-400 font-bold bg-emerald-400/10'
                       : 'text-[#9CA3B5] hover:text-white'
@@ -342,17 +427,17 @@ export default function Shop() {
             </div>
           </div>
 
-          {/* 5. Condition Filter */}
+          {/* 6. Condition Filter */}
           <div className="space-y-3 pt-4 border-t border-[#282E40]">
             <h4 className="text-xs font-bold text-white uppercase tracking-wider border-l-2 border-amber-500 pl-2">
-              Condition
+              Tình trạng thẻ (Condition)
             </h4>
             <div className="space-y-1">
               {conditions.map((c) => (
                 <button
                   key={c}
                   onClick={() => setSelectedCondition(c)}
-                  className={`w-full text-left px-3 py-1.5 rounded-lg text-xs transition-colors flex items-center justify-between ${
+                  className={`w-full text-left px-3 py-1.5 rounded-lg text-xs transition-colors flex items-center justify-between cursor-pointer ${
                     selectedCondition === c
                       ? 'text-amber-400 font-bold bg-amber-400/10'
                       : 'text-[#9CA3B5] hover:text-white'
@@ -368,10 +453,10 @@ export default function Shop() {
           {/* Reset button inside sidebar */}
           <button
             onClick={handleResetFilters}
-            className="w-full py-2.5 rounded-xl bg-[#171C2B] hover:bg-[#1E2438] text-xs font-bold text-[#F43F5E] border border-[#282E40] transition-colors flex items-center justify-center space-x-2"
+            className="w-full py-2.5 rounded-xl bg-[#171C2B] hover:bg-[#1E2438] text-xs font-bold text-[#F43F5E] border border-[#282E40] transition-colors flex items-center justify-center space-x-2 cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span>Reset All Filters</span>
+            <span>Xóa tất cả bộ lọc</span>
           </button>
 
         </aside>
@@ -383,15 +468,15 @@ export default function Shop() {
               <div className="w-16 h-16 rounded-2xl bg-[#171C2B] border border-[#282E40] flex items-center justify-center mx-auto text-[#656D82]">
                 <Search className="w-8 h-8" />
               </div>
-              <h3 className="text-lg font-bold text-white">No Trading Cards Found</h3>
+              <h3 className="text-lg font-bold text-white">Không tìm thấy sản phẩm phù hợp</h3>
               <p className="text-xs text-[#9CA3B5] max-w-md mx-auto">
-                No products match your selected filters. Try broadening your criteria or reset the filters below.
+                Không có thẻ bài hoặc sản phẩm nào khớp với bộ lọc hiện tại. Hãy thử mở rộng khoảng giá hoặc chọn phân loại khác.
               </p>
               <button
                 onClick={handleResetFilters}
-                className="px-5 py-2.5 rounded-xl bg-[#D9B45B] text-[#090B12] font-black text-xs hover:brightness-110 shadow-gold-glow"
+                className="px-5 py-2.5 rounded-xl bg-[#D9B45B] text-[#090B12] font-black text-xs hover:brightness-110 shadow-gold-glow cursor-pointer"
               >
-                Reset All Filters
+                Đặt lại bộ lọc
               </button>
             </div>
           ) : (

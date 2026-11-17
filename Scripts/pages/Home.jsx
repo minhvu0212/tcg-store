@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   ArrowRight,
   Sparkles,
@@ -11,19 +11,54 @@ import {
   Zap,
   ChevronRight,
   TrendingUp,
-  Star
+  Star,
+  Gem,
+  Coins,
+  Box,
+  Gift
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { products } from '../data/products';
 import { categories } from '../data/categories';
 import ProductCard from '../components/ProductCard';
 import { getAssetUrl } from '../utils/assetHelper';
+import { formatPrice } from '../utils/priceHelper';
 
 export default function Home() {
   const { navigate, setCategoryFilter } = useStore();
 
-  const bestSellers = products.filter(p => p.isBestSeller).slice(0, 8);
-  const newArrivals = products.filter(p => p.isNewArrival || p.badge === 'New & Hot').slice(0, 4);
+  // Curated Catalog Slices (135 master products)
+  // 1. High Value Holy Grails (> 2,000,000 VND)
+  const holyGrails = products
+    .filter(p => (p.isGrail || p.price >= 2000000) && p.category === 'Single Cards')
+    .slice(0, 4);
+
+  // 2. Featured Rare Cards (SR, SEC, SIR, QCSR, Alt Art)
+  const featuredRareCards = products
+    .filter(p => p.category === 'Single Cards' && (p.rarity.includes('Secret') || p.rarity.includes('Illustration') || p.rarity.includes('Ultimate') || p.rarity.includes('Quarter Century') || p.rarity.includes('Special Rare') || p.badge === 'Alternate Art'))
+    .slice(0, 4);
+
+  // 3. Booster Boxes & Sealed Products
+  const boosterBoxesAndSealed = products
+    .filter(p => ['Booster Box', 'Elite Trainer Box', 'Collection Box', 'Structure Deck'].includes(p.category))
+    .slice(0, 4);
+
+  // 4. Budget Cards (10k - 100k VND)
+  const budgetCards = products
+    .filter(p => p.category === 'Single Cards' && p.price <= 100000)
+    .slice(0, 4);
+
+  // 5. Best Sellers
+  const bestSellers = products
+    .filter(p => p.isBestSeller)
+    .slice(0, 8);
+
+  // 6. New Arrivals
+  const newArrivals = products
+    .filter(p => p.isNewArrival)
+    .slice(0, 4);
+
+  // Franchises
   const yugiohFeatured = products.filter(p => p.tcgSeries === 'Yu-Gi-Oh!').slice(0, 4);
   const pokemonFeatured = products.filter(p => p.tcgSeries === 'Pokémon TCG').slice(0, 4);
   const onepieceFeatured = products.filter(p => p.tcgSeries === 'One Piece').slice(0, 4);
@@ -61,7 +96,7 @@ export default function Home() {
               </h1>
 
               <p className="text-sm sm:text-base text-[#9CA3B5] max-w-xl leading-relaxed">
-                Discover your favorite Trading Card Games, collect iconic holy grails, and explore premium booster boxes, structure decks, and museum-grade protective gear.
+                Khám phá thế giới thẻ bài Trading Card Game chính hãng đỉnh cao: Pokémon TCG, Yu-Gi-Oh!, One Piece Card Game. Từ thẻ phổ thông thi đấu đến siêu phẩm sưu tầm Holy Grail và hộp Booster Box niêm phong nguyên seal.
               </p>
 
               <div className="pt-2 flex flex-wrap gap-4 items-center">
@@ -69,7 +104,7 @@ export default function Home() {
                   onClick={() => { setCategoryFilter('All'); navigate('shop'); }}
                   className="px-7 py-3.5 rounded-xl bg-gradient-to-r from-[#D9B45B] via-[#E5C77A] to-[#B3913E] text-[#090B12] font-black text-sm tracking-wide hover:brightness-110 shadow-gold-glow flex items-center space-x-2 transition-all cursor-pointer"
                 >
-                  <span>SHOP NOW</span>
+                  <span>KHÁM PHÁ KHO THẺ ({products.length})</span>
                   <ArrowRight className="w-4 h-4 stroke-[3]" />
                 </button>
 
@@ -77,7 +112,7 @@ export default function Home() {
                   onClick={() => handleNavCategory('Pokémon TCG')}
                   className="px-6 py-3.5 rounded-xl bg-[#171C2B] hover:bg-[#1E2438] text-white border border-[#282E40] hover:border-[#8957E5] font-bold text-sm transition-all flex items-center space-x-2 cursor-pointer"
                 >
-                  <span>EXPLORE COLLECTION</span>
+                  <span>POKÉMON 151 & TCG</span>
                   <ChevronRight className="w-4 h-4 text-[#9CA3B5]" />
                 </button>
               </div>
@@ -86,15 +121,15 @@ export default function Home() {
               <div className="pt-6 grid grid-cols-3 gap-4 border-t border-[#282E40]/60 max-w-md">
                 <div>
                   <div className="text-xl font-black text-white">100%</div>
-                  <div className="text-[11px] text-[#9CA3B5]">Authentic Scans</div>
+                  <div className="text-[11px] text-[#9CA3B5]">Thẻ thật chính hãng</div>
                 </div>
                 <div>
-                  <div className="text-xl font-black text-[#D9B45B]">PSA 10</div>
-                  <div className="text-[11px] text-[#9CA3B5]">Grading Ready</div>
+                  <div className="text-xl font-black text-[#D9B45B]">135+</div>
+                  <div className="text-[11px] text-[#9CA3B5]">Sản phẩm & Box</div>
                 </div>
                 <div>
-                  <div className="text-xl font-black text-[#8957E5]">35pt UV</div>
-                  <div className="text-[11px] text-[#9CA3B5]">Slab Protection</div>
+                  <div className="text-xl font-black text-[#8957E5]">Bảo vệ UV</div>
+                  <div className="text-[11px] text-[#9CA3B5]">Toploader & Magnetic</div>
                 </div>
               </div>
 
@@ -120,7 +155,7 @@ export default function Home() {
                     />
                     <div className="p-2 text-center">
                       <span className="text-[10px] font-bold text-[#D9B45B] block truncate">Blue-Eyes White Dragon</span>
-                      <span className="text-[9px] text-[#9CA3B5]">Ultra Rare 1st Ed</span>
+                      <span className="text-[9px] text-[#9CA3B5]">LOB-001 • Ultra Rare</span>
                     </div>
                   </div>
                 </div>
@@ -138,7 +173,7 @@ export default function Home() {
                     />
                     <div className="p-2 text-center">
                       <span className="text-[10px] font-bold text-[#F43F5E] block truncate">Gear 5 Manga Luffy</span>
-                      <span className="text-[9px] text-[#9CA3B5]">Manga Secret Rare</span>
+                      <span className="text-[9px] text-[#9CA3B5]">OP05-119 • Manga Rare</span>
                     </div>
                   </div>
                 </div>
@@ -173,23 +208,23 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 2. FEATURED CATEGORIES */}
+      {/* 2. FEATURED CATEGORIES DEPARTMENTS */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8">
           <div>
             <div className="text-xs font-bold text-[#D9B45B] uppercase tracking-wider flex items-center space-x-1.5 mb-1">
               <Layers className="w-3.5 h-3.5" />
-              <span>Curated Departments</span>
+              <span>Phân loại sản phẩm</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-black text-white font-['Cinzel']">
-              FEATURED CATEGORIES
+              DANH MỤC GAME TCG NỔI BẬT
             </h2>
           </div>
           <button
             onClick={() => { setCategoryFilter('All'); navigate('shop'); }}
-            className="mt-3 md:mt-0 text-xs font-bold text-[#D9B45B] hover:underline flex items-center space-x-1"
+            className="mt-3 md:mt-0 text-xs font-bold text-[#D9B45B] hover:underline flex items-center space-x-1 cursor-pointer"
           >
-            <span>View All Departments</span>
+            <span>Xem tất cả danh mục ({products.length} SP)</span>
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
@@ -223,7 +258,7 @@ export default function Home() {
               </div>
 
               <div className="mt-4 pt-3 border-t border-[#282E40] flex items-center justify-between text-xs font-semibold text-[#D9B45B]">
-                <span>Explore Category</span>
+                <span>Khám phá bộ sưu tập</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </div>
             </div>
@@ -231,23 +266,156 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3. BEST SELLERS */}
+      {/* 3. SHOWCASE SECTION: HIGH VALUE CARDS / HOLY GRAILS (> 2TR VNĐ) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative rounded-3xl bg-gradient-to-r from-[#1E1929] via-[#141824] to-[#1E1929] border border-[#D9B45B]/50 p-6 sm:p-10 overflow-hidden shadow-2xl">
+          {/* Ambient Gold Glow */}
+          <div className="absolute top-0 right-0 w-80 h-80 bg-[#D9B45B]/10 rounded-full blur-[100px] pointer-events-none"></div>
+
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between mb-8 pb-6 border-b border-[#282E40]">
+            <div>
+              <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#D9B45B]/15 border border-[#D9B45B]/30 text-[#D9B45B] text-[11px] font-black uppercase tracking-wider mb-2">
+                <Gem className="w-3.5 h-3.5" />
+                <span>Kho báu sưu tầm đỉnh cao • Holy Grails</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black text-white font-['Cinzel']">
+                THẺ SƯU TẦM GIÁ TRỊ CAO (HOLY GRAILS)
+              </h2>
+              <p className="text-xs text-[#9CA3B5] mt-1 max-w-2xl">
+                Những siêu phẩm thẻ bài đắt giá nhất thị trường với độ hiếm Manga Alternate Art, Special Illustration Rare và Secret Rare đạt chuẩn giám định bảo quản UV.
+              </p>
+            </div>
+
+            <button
+              onClick={() => { setCategoryFilter('All'); navigate('shop'); }}
+              className="mt-4 md:mt-0 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#D9B45B] to-[#B3913E] text-[#090B12] font-black text-xs hover:brightness-110 shadow-gold-glow flex items-center space-x-1.5 cursor-pointer"
+            >
+              <span>Xem tất cả Grails</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
+            {holyGrails.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 4. SHOWCASE SECTION: FEATURED RARE CARDS */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8">
+          <div>
+            <div className="text-xs font-bold text-[#8957E5] uppercase tracking-wider flex items-center space-x-1.5 mb-1">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Độ hiếm đặc biệt</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-black text-white font-['Cinzel']">
+              THẺ HIẾM NỔI BẬT (FEATURED RARE CARDS)
+            </h2>
+            <p className="text-xs text-[#9CA3B5] mt-1">
+              Tuyển tập thẻ bài Ultra Rare, Super Rare, Secret Rare có hiệu ứng lấp lánh và artwork tuyệt đẹp.
+            </p>
+          </div>
+          <button
+            onClick={() => { setCategoryFilter('All'); navigate('shop'); }}
+            className="mt-3 md:mt-0 text-xs font-bold text-[#D9B45B] hover:underline flex items-center space-x-1 cursor-pointer"
+          >
+            <span>Khám phá thêm thẻ hiếm</span>
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {featuredRareCards.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+      </section>
+
+      {/* 5. SHOWCASE SECTION: BOOSTER BOXES & SEALED PRODUCTS */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative rounded-3xl bg-gradient-to-r from-[#171C2B] via-[#111522] to-[#171C2B] border border-[#438DFF]/40 p-6 sm:p-10 overflow-hidden shadow-2xl">
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between mb-8 pb-6 border-b border-[#282E40]">
+            <div>
+              <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#438DFF]/15 border border-[#438DFF]/30 text-[#438DFF] text-[11px] font-black uppercase tracking-wider mb-2">
+                <Box className="w-3.5 h-3.5" />
+                <span>Nguyên seal nhà máy • Factory Sealed</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black text-white font-['Cinzel']">
+                BOOSTER BOX & SẢN PHẨM ĐÓNG HỘP
+              </h2>
+              <p className="text-xs text-[#9CA3B5] mt-1 max-w-2xl">
+                Hộp Booster Box 24-36 packs, Elite Trainer Box (ETB) cao cấp, Collection Box kèm promo card độc quyền, và Structure Deck sẵn sàng thi đấu.
+              </p>
+            </div>
+
+            <button
+              onClick={() => { setCategoryFilter('All'); navigate('shop'); }}
+              className="mt-4 md:mt-0 px-5 py-2.5 rounded-xl bg-[#171C2B] hover:bg-[#438DFF] hover:text-white text-[#438DFF] border border-[#438DFF]/40 font-bold text-xs transition-all flex items-center space-x-1.5 cursor-pointer"
+            >
+              <span>Xem tất cả Hộp & Box</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
+            {boosterBoxesAndSealed.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 6. SHOWCASE SECTION: BUDGET & COMMON STAPLES (10k - 100k VNĐ) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8">
+          <div>
+            <div className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center space-x-1.5 mb-1">
+              <Coins className="w-3.5 h-3.5" />
+              <span>Giá bình dân • Xây dựng Deck thi đấu</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-black text-white font-['Cinzel']">
+              THẺ PHỔ THÔNG & BÌNH DÂN (10K – 100K ₫)
+            </h2>
+            <p className="text-xs text-[#9CA3B5] mt-1">
+              Các quân bài Common, Uncommon cần thiết cho meta game với mức giá cực kỳ dễ tiếp cận cho tân thủ và bài thủ chuyên nghiệp.
+            </p>
+          </div>
+          <button
+            onClick={() => { setCategoryFilter('All'); navigate('shop'); }}
+            className="mt-3 md:mt-0 text-xs font-bold text-emerald-400 hover:underline flex items-center space-x-1 cursor-pointer"
+          >
+            <span>Xem thẻ phổ thông</span>
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {budgetCards.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+      </section>
+
+      {/* 7. BEST SELLERS */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8">
           <div>
             <div className="text-xs font-bold text-[#D9B45B] uppercase tracking-wider flex items-center space-x-1.5 mb-1">
               <Flame className="w-3.5 h-3.5 text-amber-500" />
-              <span>Highest Demand</span>
+              <span>Sức hút cao nhất</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-black text-white font-['Cinzel']">
-              BEST SELLERS
+              SẢN PHẨM BÁN CHẠY NHẤT (BEST SELLERS)
             </h2>
           </div>
           <button
             onClick={() => { setCategoryFilter('All'); navigate('shop'); }}
-            className="mt-3 md:mt-0 text-xs font-bold text-[#D9B45B] hover:underline flex items-center space-x-1"
+            className="mt-3 md:mt-0 text-xs font-bold text-[#D9B45B] hover:underline flex items-center space-x-1 cursor-pointer"
           >
-            <span>Browse Full Catalog</span>
+            <span>Xem toàn bộ danh mục</span>
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
@@ -259,20 +427,47 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. YU-GI-OH! FEATURED COLLECTION (SECTION V & VII.5) */}
+      {/* 8. NEW ARRIVALS */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8">
+          <div>
+            <div className="text-xs font-bold text-[#8957E5] uppercase tracking-wider flex items-center space-x-1.5 mb-1">
+              <TrendingUp className="w-3.5 h-3.5" />
+              <span>Mới cập bến kho</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-black text-white font-['Cinzel']">
+              HÀNG MỚI VỀ (NEW ARRIVALS)
+            </h2>
+          </div>
+          <button
+            onClick={() => { setCategoryFilter('All'); navigate('shop'); }}
+            className="mt-3 md:mt-0 text-xs font-bold text-[#8957E5] hover:underline flex items-center space-x-1 cursor-pointer"
+          >
+            <span>Khám phá thẻ mới</span>
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {newArrivals.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+      </section>
+
+      {/* 9. YU-GI-OH! FEATURED COLLECTION */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative rounded-3xl bg-gradient-to-r from-[#171C2B] to-[#111522] border border-[#282E40] p-6 sm:p-10 overflow-hidden">
-
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between mb-8 pb-6 border-b border-[#282E40]">
             <div>
               <span className="text-xs font-bold text-[#D9B45B] tracking-widest uppercase">
                 Duel Monsters Vault
               </span>
               <h2 className="text-2xl sm:text-3xl font-black text-white font-['Cinzel'] mt-1">
-                YU-GI-OH! FEATURED COLLECTION
+                BỘ SƯU TẬP YU-GI-OH! NỔI BẬT
               </h2>
               <p className="text-xs text-[#9CA3B5] mt-1">
-                Showcasing Blue-Eyes White Dragon, Dark Magician, Dark Magician Girl, Red-Eyes & 25th Rarity Boxes.
+                Blue-Eyes White Dragon, Dark Magician, Dark Magician Girl, Red-Eyes & Hộp kỷ niệm 25th Quarter Century.
               </p>
             </div>
 
@@ -280,7 +475,7 @@ export default function Home() {
               onClick={() => handleNavCategory('Yu-Gi-Oh!')}
               className="mt-4 md:mt-0 px-5 py-2.5 rounded-xl bg-[#171C2B] hover:bg-[#D9B45B] hover:text-[#090B12] text-[#D9B45B] border border-[#D9B45B]/40 font-bold text-xs transition-all flex items-center space-x-1.5 cursor-pointer"
             >
-              <span>Explore All Yu-Gi-Oh!</span>
+              <span>Xem tất cả Yu-Gi-Oh!</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -290,24 +485,22 @@ export default function Home() {
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
-
         </div>
       </section>
 
-      {/* 5. POKÉMON FEATURED COLLECTION (SECTION V & VII.6) */}
+      {/* 10. POKÉMON FEATURED COLLECTION */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative rounded-3xl bg-gradient-to-r from-[#171C2B] via-[#111522] to-[#171C2B] border border-[#282E40] p-6 sm:p-10 overflow-hidden">
-
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between mb-8 pb-6 border-b border-[#282E40]">
             <div>
               <span className="text-xs font-bold text-[#8957E5] tracking-widest uppercase">
-                Gotta Catch \'Em All
+                Gotta Catch 'Em All
               </span>
               <h2 className="text-2xl sm:text-3xl font-black text-white font-['Cinzel'] mt-1">
-                POKÉMON FEATURED COLLECTION
+                BỘ SƯU TẬP POKÉMON TCG NỔI BẬT
               </h2>
               <p className="text-xs text-[#9CA3B5] mt-1">
-                Featuring Charizard ex 151, Umbreon VMAX Moonbreon, Pikachu Secret Rare, and Sealed 151 ETBs.
+                Charizard ex 151 SIR, Umbreon VMAX Moonbreon, Pikachu Secret Rare, và Hộp ETB Scarlet & Violet 151.
               </p>
             </div>
 
@@ -315,7 +508,7 @@ export default function Home() {
               onClick={() => handleNavCategory('Pokémon TCG')}
               className="mt-4 md:mt-0 px-5 py-2.5 rounded-xl bg-[#171C2B] hover:bg-[#8957E5] hover:text-white text-[#8957E5] border border-[#8957E5]/40 font-bold text-xs transition-all flex items-center space-x-1.5 cursor-pointer"
             >
-              <span>Explore All Pokémon</span>
+              <span>Xem tất cả Pokémon</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -325,11 +518,10 @@ export default function Home() {
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
-
         </div>
       </section>
 
-      {/* 6. ONE PIECE CARD GAME SHOWCASE */}
+      {/* 11. ONE PIECE CARD GAME SHOWCASE */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8">
           <div>
@@ -343,9 +535,9 @@ export default function Home() {
           </div>
           <button
             onClick={() => handleNavCategory('One Piece')}
-            className="mt-3 md:mt-0 text-xs font-bold text-[#F43F5E] hover:underline flex items-center space-x-1"
+            className="mt-3 md:mt-0 text-xs font-bold text-[#F43F5E] hover:underline flex items-center space-x-1 cursor-pointer"
           >
-            <span>View All One Piece Cards</span>
+            <span>Xem thẻ One Piece</span>
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
@@ -357,7 +549,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 7. TCG ACCESSORIES SHOWCASE (SECTION VII.7) */}
+      {/* 12. TCG ACCESSORIES SHOWCASE */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8">
           <div>
@@ -366,14 +558,14 @@ export default function Home() {
               <span>Grail Preservation</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-black text-white font-['Cinzel']">
-              TCG ACCESSORIES & PROTECTION
+              PHỤ KIỆN BẢO QUẢN THẺ CAO CẤP
             </h2>
           </div>
           <button
             onClick={() => handleNavCategory('Accessories')}
-            className="mt-3 md:mt-0 text-xs font-bold text-[#438DFF] hover:underline flex items-center space-x-1"
+            className="mt-3 md:mt-0 text-xs font-bold text-[#438DFF] hover:underline flex items-center space-x-1 cursor-pointer"
           >
-            <span>View All Accessories</span>
+            <span>Xem tất cả phụ kiện</span>
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
@@ -385,7 +577,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 8. PROMOTIONAL BANNER (SECTION VII.8) */}
+      {/* 13. PROMOTIONAL BANNER */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative rounded-3xl overflow-hidden border border-[#D9B45B]/40 bg-gradient-to-r from-[#171C2B] via-[#111522] to-[#171C2B] p-8 sm:p-12 shadow-2xl">
           <div className="max-w-2xl relative z-10 space-y-4">
@@ -394,12 +586,12 @@ export default function Home() {
             </span>
 
             <h3 className="text-3xl sm:text-4xl font-black text-white font-['Cinzel'] leading-tight">
-              COLLECT TODAY. <br />
-              <span className="text-gold-gradient">FORGE YOUR LEGEND.</span>
+              SƯU TẦM HÔM NAY. <br />
+              <span className="text-gold-gradient">KIẾN TẠO HUYỀN THOẠI.</span>
             </h3>
 
             <p className="text-xs sm:text-sm text-[#9CA3B5] leading-relaxed">
-              Explore authentic certified holy grails from modern alternate arts to vintage 1st Edition classics. All pricing and orders are interactive prototype simulations for UI demonstration.
+              Khám phá các bảo vật trading card game từ Alternate Art hiện đại đến các phiên bản 1st Edition kinh điển. Toàn bộ thông tin giá bán tham khảo và tính năng đặt hàng đều là mô phỏng giao diện tương tác Phase 1 Frontend UI.
             </p>
 
             <div className="pt-2 flex flex-wrap gap-4">
@@ -407,31 +599,31 @@ export default function Home() {
                 onClick={() => { setCategoryFilter('All'); navigate('shop'); }}
                 className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#D9B45B] to-[#B3913E] text-[#090B12] font-black text-xs hover:brightness-110 shadow-gold-glow flex items-center space-x-2 cursor-pointer"
               >
-                <span>EXPLORE ALL GRAILS</span>
+                <span>XEM TẤT CẢ ({products.length} SP)</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
               <button
                 onClick={() => navigate('news')}
                 className="px-6 py-3 rounded-xl bg-[#111522] hover:bg-[#1E2438] text-white border border-[#282E40] text-xs font-bold transition-all cursor-pointer"
               >
-                READ COLLECTOR GUIDES
+                HƯỚNG DẪN BẢO QUẢN THẺ
               </button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 9. WHY CHOOSE US (SECTION VII.9) */}
+      {/* 14. WHY CHOOSE US */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-12">
           <span className="text-xs font-bold text-[#D9B45B] uppercase tracking-wider">
-            The Collector\'s Standard
+            Tiêu chuẩn người sưu tầm
           </span>
           <h2 className="text-3xl font-black text-white font-['Cinzel'] mt-1">
-            WHY COLLECTORS CHOOSE TCG STORE
+            TẠI SAO BÀI THỦ CHỌN TCG STORE
           </h2>
           <p className="text-xs text-[#9CA3B5] mt-2">
-            Built by collectors, for collectors. We set the benchmark for authenticity, protective packaging, and catalog accuracy.
+            Được xây dựng bởi những người sưu tầm, vì cộng đồng bài thủ. Đảm bảo tính xác thực, đóng gói bọc giáp bảo vệ, và thông số thẻ chuẩn xác nhất.
           </p>
         </div>
 
@@ -440,9 +632,9 @@ export default function Home() {
             <div className="w-12 h-12 rounded-xl bg-[#D9B45B]/10 border border-[#D9B45B]/30 flex items-center justify-center text-[#D9B45B]">
               <ShieldCheck className="w-6 h-6" />
             </div>
-            <h3 className="font-bold text-sm text-white">100% Genuine Cards</h3>
+            <h3 className="font-bold text-sm text-white">100% Thẻ Chính Hãng</h3>
             <p className="text-xs text-[#9CA3B5] leading-relaxed">
-              Every card undergoes multi-point optical inspection including rosette printing, core stock check, and holographic seal verification.
+              Mỗi lá bài đều được kiểm tra chi tiết công nghệ in ấn, phôi thẻ, vân bảo mật holographic chống hàng giả.
             </p>
           </div>
 
@@ -450,9 +642,9 @@ export default function Home() {
             <div className="w-12 h-12 rounded-xl bg-[#8957E5]/10 border border-[#8957E5]/30 flex items-center justify-center text-[#8957E5]">
               <Package className="w-6 h-6" />
             </div>
-            <h3 className="font-bold text-sm text-white">Armor-Plated Shipping</h3>
+            <h3 className="font-bold text-sm text-white">Đóng Gói Bọc Giáp</h3>
             <p className="text-xs text-[#9CA3B5] leading-relaxed">
-              Cards are sleeved, placed in UV magnetic cases, sealed in team bags, and sandwiched between rigid board armor.
+              Sleeve bảo vệ, toploader cứng chống cong mép, bao bì niêm phong và hộp carton chịu lực chống va đập.
             </p>
           </div>
 
@@ -460,9 +652,9 @@ export default function Home() {
             <div className="w-12 h-12 rounded-xl bg-[#438DFF]/10 border border-[#438DFF]/30 flex items-center justify-center text-[#438DFF]">
               <Award className="w-6 h-6" />
             </div>
-            <h3 className="font-bold text-sm text-white">PSA / BGS Ready</h3>
+            <h3 className="font-bold text-sm text-white">Sẵn Sàng Giám Định PSA</h3>
             <p className="text-xs text-[#9CA3B5] leading-relaxed">
-              Accurate condition grading. What you see in the high-resolution scans is the exact card delivered to your vault.
+              Tình trạng thẻ Near Mint và Gem Mint sắc nét, sẵn sàng gửi đi chấm điểm thẻ tại PSA, BGS, CGC.
             </p>
           </div>
 
@@ -470,9 +662,9 @@ export default function Home() {
             <div className="w-12 h-12 rounded-xl bg-[#10B981]/10 border border-[#10B981]/30 flex items-center justify-center text-[#10B981]">
               <Star className="w-6 h-6" />
             </div>
-            <h3 className="font-bold text-sm text-white">Collector Community</h3>
+            <h3 className="font-bold text-sm text-white">Cộng Đồng Đam Mê TCG</h3>
             <p className="text-xs text-[#9CA3B5] leading-relaxed">
-              Dedicated duelist and collector community with weekly deck strategy analysis, set reviews, and grail giveaways.
+              Nơi giao lưu, cập nhật meta game, tin tức set thẻ bài mới và chia sẻ những khoảnh khắc unbox ấn tượng.
             </p>
           </div>
         </div>
